@@ -1,0 +1,33 @@
+---
+# vim: et:ts=2:sw=2:sts=2
+
+- hosts: server
+
+  tasks:
+    - name: enable selinux
+      become: yes
+      selinux:
+        policy: targeted
+        state: enforcing
+
+    - name: allow httpd to make outgoing network connections
+      become: yes
+      seboolean:
+        name: httpd_can_network_connect
+        state: yes
+        persistent: yes
+
+    - name: allow httpd to act as reverse proxy
+      become: yes
+      seboolean:
+        name: httpd_can_network_relay
+        state: yes
+        persistent: yes
+
+    - name: allow httpd to access log files
+      become: yes
+      command: chcon -Rt httpd_sys_content_t /srv/opencast/opencast-dist-allinone/data/log/
+
+    - name: allow httpd to access video files
+      become: yes
+      command: chcon -Rt httpd_sys_content_t /srv/opencast/opencast-dist-allinone/data/opencast/
